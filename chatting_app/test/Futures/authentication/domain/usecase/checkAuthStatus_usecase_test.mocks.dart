@@ -85,15 +85,16 @@ class MockAuthenticationRepository extends _i1.Mock
           as _i4.Future<_i2.Either<_i5.Failure, _i7.UserEntity>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, bool>> checkAuthStatus() =>
+  _i4.Future<_i2.Either<_i5.Failure, _i7.UserEntity>> checkAuthStatus() =>
       (super.noSuchMethod(
             Invocation.method(#checkAuthStatus, []),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, bool>>.value(
-              _FakeEither_0<_i5.Failure, bool>(
-                this,
-                Invocation.method(#checkAuthStatus, []),
-              ),
-            ),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i7.UserEntity>>.value(
+                  _FakeEither_0<_i5.Failure, _i7.UserEntity>(
+                    this,
+                    Invocation.method(#checkAuthStatus, []),
+                  ),
+                ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, bool>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i7.UserEntity>>);
 }

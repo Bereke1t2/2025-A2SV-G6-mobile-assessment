@@ -14,7 +14,7 @@ abstract class AuthRemoteDataSource {
   Future<Either<Failure, void>> login(LoginParams params);
   Future<Either<Failure, bool>> logout();
   Future<Either<Failure, UserModel>> register(SignupParams params);
-  Future<Either<Failure, bool>> checkAuthStatus();
+  Future<Either<Failure, UserModel>> checkAuthStatus();
 }
 
 
@@ -27,9 +27,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<Either<Failure, void>> login(LoginParams params) async {
-    print("login intery point");
     try {
-      print("login started with params: ${params.toJson()}");
       final response = await httpClient.post(
         Uri.parse('${Constants.baseUrl}${Constants.loginEndpoint}'),
         headers: <String, String>{
@@ -38,21 +36,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         body: json.encode(params.toJson()),
       );
       if (response.statusCode == 201) {
-        print("Login Response: ${response.body}");
         final token = json.decode(response.body)['data']['access_token'] ?? '';
-        print("Token: $token");
         final userId = json.decode(response.body)['data']['userId'] ?? '';
         final userInfo = UserInfoParams(
           isLoggedIn: 'true',
           token: token,
           userId: userId,
         );
-        print("Saving User Info: ${userInfo.toJson()}");
         await authLocalDataSource.saveUserInfo(userInfo);
-        print("Saved User Info: ${userInfo.toJson()}");
         return Right(null);
+      } else if (response.statusCode == 401) {
+        return Left(Failure('Invalid credentials'));
+      } else if (response.statusCode == 500) {
+        return Left(Failure('Server error'));
       } else {
-        return Left(Failure('Login failed with status code: ${response.statusCode}'));
+        return Left(Failure('Login failed'));
       }
     } catch (e) {
       return Left(Failure(e.toString()));
@@ -99,14 +97,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         
         return Right(userModel);
       } else {
-        return Left(Failure('Registration failed with status code: ${response.statusCode}'));
+        return Left(Failure('Registration failed'));
       }
     } catch (e) {
-      return Left(Failure('Failed to register: $e'));
+      return Left(Failure('Failed to register'));
     }
   }
   @override
-  Future<Either<Failure, bool>> checkAuthStatus() async {
+  Future<Either<Failure, UserModel>> checkAuthStatus() async {
   try {
     final Either<Failure, UserInfoParams> userInfoEither = await authLocalDataSource.getUserInfo();
 
@@ -132,17 +130,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
               token: '',
               imageUrl: '',
             );
-            return Right(true);
+            await authLocalDataSource.saveUserInfo(
+              UserInfoParams(
+                isLoggedIn: 'true',
+                token: userInfo.token,
+                userId: userModel.id,
+              ),
+            );
+            return Right(userModel);
+          } else if (response.statusCode == 401) {
+            return Left(Failure('Unauthorized access'));
           } else {
-            return Left(Failure('Failed to fetch user profile with status code: ${response.statusCode}, body: ${response.body}'));
+            return Left(Failure('Failed to fetch user profile'));
           }
         } else {
-          return Left(Failure('User is not authenticated with status: ${userInfo.isLoggedIn}, token: ${userInfo.token}')); 
+          return Left(Failure('User is not authenticated'));
         }
       },
     );
   } catch (e) {
-    return Left(Failure('Failed to check authentication status: $e'));
+    return Left(Failure('Failed to check authentication status'));
   }
 }
 }

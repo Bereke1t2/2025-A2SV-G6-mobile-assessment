@@ -6,17 +6,19 @@
 import 'dart:async' as _i5;
 
 import 'package:chatting_app/core/error/failure.dart' as _i6;
-import 'package:chatting_app/core/usecase/usecase.dart' as _i8;
+import 'package:chatting_app/core/usecase/usecase.dart' as _i9;
+import 'package:chatting_app/Futures/authentication/domain/entity/user_entity.dart'
+    as _i7;
 import 'package:chatting_app/Futures/authentication/domain/repositories/authentication_repository.dart'
     as _i2;
 import 'package:chatting_app/Futures/authentication/domain/usecase/checkAuthStatus_usecase.dart'
     as _i4;
 import 'package:chatting_app/Futures/authentication/domain/usecase/login_usecase.dart'
-    as _i7;
+    as _i8;
 import 'package:chatting_app/Futures/authentication/domain/usecase/logout_usecase.dart'
-    as _i10;
+    as _i11;
 import 'package:chatting_app/Futures/authentication/domain/usecase/signup_usecase.dart'
-    as _i9;
+    as _i10;
 import 'package:dartz/dartz.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -66,29 +68,30 @@ class MockCheckAuthStatusUseCase extends _i1.Mock
           as _i2.AuthenticationRepository);
 
   @override
-  _i5.Future<_i3.Either<_i6.Failure, bool>> call() =>
+  _i5.Future<_i3.Either<_i6.Failure, _i7.UserEntity>> call() =>
       (super.noSuchMethod(
             Invocation.method(#call, []),
-            returnValue: _i5.Future<_i3.Either<_i6.Failure, bool>>.value(
-              _FakeEither_1<_i6.Failure, bool>(
-                this,
-                Invocation.method(#call, []),
-              ),
-            ),
+            returnValue:
+                _i5.Future<_i3.Either<_i6.Failure, _i7.UserEntity>>.value(
+                  _FakeEither_1<_i6.Failure, _i7.UserEntity>(
+                    this,
+                    Invocation.method(#call, []),
+                  ),
+                ),
           )
-          as _i5.Future<_i3.Either<_i6.Failure, bool>>);
+          as _i5.Future<_i3.Either<_i6.Failure, _i7.UserEntity>>);
 }
 
 /// A class which mocks [LoginUsecase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLoginUsecase extends _i1.Mock implements _i7.LoginUsecase {
+class MockLoginUsecase extends _i1.Mock implements _i8.LoginUsecase {
   MockLoginUsecase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i3.Either<_i6.Failure, void>> call(_i8.LoginParams? params) =>
+  _i5.Future<_i3.Either<_i6.Failure, void>> call(_i9.LoginParams? params) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
             returnValue: _i5.Future<_i3.Either<_i6.Failure, void>>.value(
@@ -104,13 +107,13 @@ class MockLoginUsecase extends _i1.Mock implements _i7.LoginUsecase {
 /// A class which mocks [SignupUsecase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSignupUsecase extends _i1.Mock implements _i9.SignupUsecase {
+class MockSignupUsecase extends _i1.Mock implements _i10.SignupUsecase {
   MockSignupUsecase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i3.Either<_i6.Failure, void>> call(_i8.SignupParams? params) =>
+  _i5.Future<_i3.Either<_i6.Failure, void>> call(_i9.SignupParams? params) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
             returnValue: _i5.Future<_i3.Either<_i6.Failure, void>>.value(
@@ -126,7 +129,7 @@ class MockSignupUsecase extends _i1.Mock implements _i9.SignupUsecase {
 /// A class which mocks [LogoutUsecase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogoutUsecase extends _i1.Mock implements _i10.LogoutUsecase {
+class MockLogoutUsecase extends _i1.Mock implements _i11.LogoutUsecase {
   MockLogoutUsecase() {
     _i1.throwOnMissingStub(this);
   }

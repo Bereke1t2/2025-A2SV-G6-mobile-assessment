@@ -16,7 +16,7 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
   @override
   Future<Either<Failure, void>> login(LoginParams params) async {
     if (!await networkInfo.isConnected) {
-      return Left(Failure('No internet connection from AuthenticationRepositoryImpl'));
+      return Left(Failure('No internet connection!'));
     } else {
       return await remoteDataSource.login(params);
     }
@@ -25,7 +25,7 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
   @override
   Future<Either<Failure, bool>> logout() async {
     if (!await networkInfo.isConnected) {
-      return Left(Failure('No internet connection'));
+      return Left(Failure('No internet connection!'));
     } else {
       return await remoteDataSource.logout();
     }
@@ -34,16 +34,16 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
   @override
   Future<Either<Failure, UserEntity>> register(SignupParams params) async {
     if (!await networkInfo.isConnected) {
-      return Left(Failure('No internet connection'));
+      return Left(Failure('No internet connection!'));
     } else {
       return await remoteDataSource.register(params); 
     }
   }
 
   @override
-  Future<Either<Failure, bool>> checkAuthStatus() async {
+  Future<Either<Failure, UserEntity>> checkAuthStatus() async {
     if (!await networkInfo.isConnected) {
-      return Left(Failure('No internet connection'));
+      return Left(Failure('No internet connection!'));
     } else {
       return await remoteDataSource.checkAuthStatus();
     }

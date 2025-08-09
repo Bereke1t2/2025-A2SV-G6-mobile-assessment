@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:chatting_app/Futures/authentication/domain/entity/user_entity.dart';
 import 'package:chatting_app/Futures/authentication/presentation/bloc/authentication_bloc.dart';
 import 'package:chatting_app/Futures/authentication/presentation/bloc/authentication_state.dart';
-import 'package:chatting_app/core/usecase/usecase.dart';
 import 'package:chatting_app/Futures/authentication/domain/usecase/checkAuthStatus_usecase.dart';
 import 'package:chatting_app/Futures/authentication/domain/usecase/login_usecase.dart';
 import 'package:chatting_app/Futures/authentication/domain/usecase/logout_usecase.dart';
@@ -52,7 +52,9 @@ void main() {
       'emits [AuthenticationLoadingState, AuthenticationSuccessState] when authentication starts',
       build: () {
         when(mockCheckAuthStatusUseCase())
-            .thenAnswer((_) async => const Right(true));
+            .thenAnswer((_) async => const Right(
+          UserEntity(id: '123', name: 'Test User', email: 'test@example.com', password: '', token: '', imageUrl: '')
+            ));
         return authenticationBloc;
       },
       act: (bloc) => bloc.add(AuthenticationStarted()),
@@ -97,13 +99,15 @@ void main() {
       'emits [AuthenticationLoadingState, AuthorizedState] when auth status is checked and user is authenticated',
       build: () {
         when(mockCheckAuthStatusUseCase())
-            .thenAnswer((_) async => const Right(true));
+            .thenAnswer((_) async => const Right(
+          UserEntity(id: '123', name: 'Test User', email: 'test@example.com', password: '', token: '', imageUrl: '')
+            ));
         return authenticationBloc;
       },
       act: (bloc) => bloc.add(CheckAuthStatusRequested()),
       expect: () => [
         AuthenticationLoadingState(),
-        AuthorizedState(),
+        AuthorizedState(UserEntity(id: '123', name: 'Test User', email: 'test@example.com', password: '', token: '', imageUrl: '')),
       ],
     );
 
@@ -111,7 +115,9 @@ void main() {
       'emits [AuthenticationLoadingState, UnAuthorizedState] when auth status is checked and user is not authenticated',
       build: () {
         when(mockCheckAuthStatusUseCase())
-            .thenAnswer((_) async => const Right(false));
+            .thenAnswer((_) async => const Right(
+          UserEntity(id: '', name: '', email: '', password: '', token: '', imageUrl: '')
+            ));
         return authenticationBloc;
       },
       act: (bloc) => bloc.add(CheckAuthStatusRequested()),

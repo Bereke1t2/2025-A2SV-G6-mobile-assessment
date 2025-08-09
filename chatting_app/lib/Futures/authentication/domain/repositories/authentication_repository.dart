@@ -7,5 +7,5 @@ abstract class AuthenticationRepository {
   Future<Either<Failure, void>> login(LoginParams params);
   Future<Either<Failure, bool>> logout();
   Future<Either<Failure, UserEntity>> register(SignupParams params);
-  Future<Either<Failure, bool>> checkAuthStatus();
+  Future<Either<Failure, UserEntity>> checkAuthStatus();
 }

@@ -1,5 +1,5 @@
 
-
+import 'package:chatting_app/Futures/authentication/domain/entity/user_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:chatting_app/Futures/authentication/domain/repositories/authentication_repository.dart';
 import 'package:chatting_app/Futures/authentication/domain/usecase/checkAuthStatus_usecase.dart';
@@ -23,37 +23,41 @@ void main(){
 
     test('should call the checkAuthStatus method of the repository', () async {
       // Arrange
-      when(mockRepository.checkAuthStatus()).thenAnswer((_) async => Right(true));
+      final user = UserEntity(id: '123', name: 'Test User', email: 'test@example.com', password: '', token: '', imageUrl: '');
+      when(mockRepository.checkAuthStatus()).thenAnswer((_) async => Right(user));
 
       // Act
       final result = await checkAuthStatusUsecase.call();
 
       // Assert
-      expect(result, Right(true));
+      expect(result, Right(user));
       verify(mockRepository.checkAuthStatus()).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
-    test('should return false when user is not authenticated', () async {
+    test('should return null when user is not authenticated', () async {
       // Arrange
-      when(mockRepository.checkAuthStatus()).thenAnswer((_) async => Right(false));
+      when(mockRepository.checkAuthStatus()).thenAnswer((_) async => Right(
+        UserEntity(id: '', name: '', email: '', password: '', token: '', imageUrl: '')
+      ));
 
       // Act
       final result = await checkAuthStatusUsecase.call();
 
       // Assert
-      expect(result, Right(false));
+      expect(result, Right(null));
       verify(mockRepository.checkAuthStatus()).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
-  test('should return true when user is authenticated', () async {
+  test('should return user when user is authenticated', () async {
     // Arrange
-    when(mockRepository.checkAuthStatus()).thenAnswer((_) async => Right(true));
+    final user = UserEntity(id: '456', name: 'Another User', email: 'another@example.com', password: '', token: '', imageUrl: '');
+    when(mockRepository.checkAuthStatus()).thenAnswer((_) async => Right(user));
 
     // Act
     final result = await checkAuthStatusUsecase.call();
 
     // Assert
-    expect(result, Right(true));
+    expect(result, Right(user));
     verify(mockRepository.checkAuthStatus()).called(1);
     verifyNoMoreInteractions(mockRepository);
   });

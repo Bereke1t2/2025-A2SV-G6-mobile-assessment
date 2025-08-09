@@ -31,16 +31,12 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   Future<void> _onAuthenticationStarted(AuthenticationStarted event, Emitter<AuthenticationState> emit) async {
     emit(AuthenticationLoadingState());
-    final authStatus = await checkAuthStatusUseCase();
-    authStatus.fold(
-      (failure) => emit(AuthenticationErrorState(failure.message)),
-      (isAuthenticated) {
-        if (isAuthenticated) {
-          emit(AuthenticationSuccessState("User is authenticated"));
-        } else {
-          emit(UnAuthorizedState());
-        }
-      },
+    final result = await checkAuthStatusUseCase();
+    result.fold(
+      (failure) => emit(failure.message.isEmpty
+          ? UnAuthorizedState()
+          : AuthenticationErrorState(failure.message)),
+      (user) => emit(AuthorizedState(user)),
     );
   }
   Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthenticationState> emit) async {
@@ -71,9 +67,10 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     emit(AuthenticationLoadingState());
     final result = await checkAuthStatusUseCase();
     result.fold(
-      (failure) => emit(AuthenticationErrorState(failure.message)),
-      (isAuthenticated) => 
-        emit(isAuthenticated ? AuthorizedState() : UnAuthorizedState()),
+      (failure) => emit(failure.message.isEmpty
+          ? UnAuthorizedState()
+          : AuthenticationErrorState(failure.message)),
+      (user) => emit(AuthorizedState(user)),
     );
   }
 }

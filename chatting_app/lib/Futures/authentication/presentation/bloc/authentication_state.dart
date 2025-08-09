@@ -1,3 +1,4 @@
+import 'package:chatting_app/Futures/authentication/domain/entity/user_entity.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class AuthenticationState extends Equatable {
@@ -10,7 +11,12 @@ abstract class AuthenticationState extends Equatable {
 // General authentication states
 class AuthenticationInitial extends AuthenticationState {}
 class UnAuthorizedState extends AuthenticationState {}
-class AuthorizedState extends AuthenticationState {}
+class AuthorizedState extends AuthenticationState {
+  final UserEntity user;
+  const AuthorizedState(this.user);
+  @override
+  List<Object?> get props => [user];
+}
 
 class AuthenticationLoadingState extends AuthenticationState {}
 class AuthenticationSuccessState extends AuthenticationState {
