@@ -25,15 +25,6 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController password = TextEditingController();
   final TextEditingController confirmPassword = TextEditingController();
 
-  @override
-  void dispose() {
-    name.dispose();
-    email.dispose();
-    password.dispose();
-    confirmPassword.dispose();
-    super.dispose();
-  }
-
   void _clear() {
     name.clear();
     email.clear();
@@ -158,7 +149,7 @@ class _SignupPageState extends State<SignupPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           backgroundColor: Colors.red,
-                          duration: const Duration(seconds: 2),
+                          duration: const Duration(seconds: 12),
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                           ),

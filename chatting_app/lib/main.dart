@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'Futures/authentication/presentation/bloc/authentication_state.dart';
 import 'Futures/authentication/presentation/pages/home_page.dart';
 import 'Futures/authentication/presentation/pages/splash_screen.dart';
+import 'Futures/chat/presentation/pages/chat_home_page.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -19,6 +20,7 @@ void main() async {
     BlocProvider<AuthenticationBloc>.value(
       value: authenticationBloc,
       child: MaterialApp(
+        // home: const ChatHomePage(),
         routes: {
           '/login': (context) => LoginPage(),
           '/signup': (context) => SignupPage(),
@@ -47,7 +49,7 @@ void main() async {
             // Default widget if no state matches
             return SplashScreen();
           },
-        ),
+        ),//end
       ),
     ),
   );

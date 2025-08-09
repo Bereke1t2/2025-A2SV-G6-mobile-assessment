@@ -2,6 +2,7 @@
 import 'package:chatting_app/core/error/failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../../../../../core/usecase/usecase.dart';
 import '../../../data/model/User_model.dart';
@@ -26,21 +27,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<Either<Failure, void>> login(LoginParams params) async {
+    print("login intery point");
     try {
+      print("login started with params: ${params.toJson()}");
       final response = await httpClient.post(
         Uri.parse('${Constants.baseUrl}${Constants.loginEndpoint}'),
-        body: params.toJson(),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(params.toJson()),
       );
       if (response.statusCode == 201) {
-        final token = response.headers['authorization'] ?? '';
-        final userId = response.headers['user-id'] ?? '';
-        final userInfo = CatchUserInfoParams(
+        print("Login Response: ${response.body}");
+        final token = json.decode(response.body)['data']['access_token'] ?? '';
+        print("Token: $token");
+        final userId = json.decode(response.body)['data']['userId'] ?? '';
+        final userInfo = UserInfoParams(
           isLoggedIn: 'true',
           token: token,
           userId: userId,
         );
+        print("Saving User Info: ${userInfo.toJson()}");
         await authLocalDataSource.saveUserInfo(userInfo);
-
+        print("Saved User Info: ${userInfo.toJson()}");
         return Right(null);
       } else {
         return Left(Failure('Login failed with status code: ${response.statusCode}'));
@@ -54,11 +63,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<Either<Failure, bool>> logout() async {
     try {
       final response = await httpClient.post(
+        headers: {
+          'Content-Type': 'application/json',
+        },
         Uri.parse('${Constants.baseUrl}${Constants.logoutEndpoint}'),
       );
       if (response.statusCode == 201) {
+        
         await authLocalDataSource.saveUserInfo(
-          CatchUserInfoParams(isLoggedIn: 'false', token: '', userId: ''),
+          UserInfoParams(isLoggedIn: 'false', token: '', userId: ''),
         );
         return Right(true);
 
@@ -66,7 +79,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return Left(Failure('Logout failed'));
       }
     } catch (e) {
-      return Left(Failure('No intzernet connection'));
+      return Left(Failure('something went wrong while logging out'));
     }
   }
 
@@ -75,36 +88,61 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await httpClient.post(
         Uri.parse('${Constants.baseUrl}${Constants.registerEndpoint}'),
-        body: params.toJson(),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(params.toJson()),
       );
       if (response.statusCode == 201) {
-        final jsonData = response.body as Map<String, dynamic>;
+        final jsonData = json.decode(response.body)['data'];
         final userModel = UserModel(id: jsonData['id'], name: jsonData['name'], email: jsonData['email'] , token:'' , imageUrl: '' , password: '');
-        await authLocalDataSource.saveUserInfo(
-          CatchUserInfoParams(
-            isLoggedIn: 'true',
-            token: userModel.token,
-            userId: userModel.id,
-          ),
-        );
+        
         return Right(userModel);
       } else {
         return Left(Failure('Registration failed with status code: ${response.statusCode}'));
       }
     } catch (e) {
-      return Left(Failure('No internet connection'));
+      return Left(Failure('Failed to register: $e'));
     }
   }
   @override
   Future<Either<Failure, bool>> checkAuthStatus() async {
-    try {
-      final userInfo = await authLocalDataSource.getUserInfo();
-      return userInfo.fold(
-        (failure) => Left(failure),
-        (info) => Right(info.isLoggedIn == 'true'),
-      );
-    } catch (e) {
-      return Left(Failure('Failed to check authentication status'));
-    }
+  try {
+    final Either<Failure, UserInfoParams> userInfoEither = await authLocalDataSource.getUserInfo();
+
+    return userInfoEither.fold(
+      (failure) => Left(failure),
+      (userInfo) async {
+        if (userInfo.isLoggedIn == 'true' && userInfo.token.isNotEmpty) {
+          final response = await httpClient.get(
+            Uri.parse('${Constants.baseUrl}${Constants.userProfileEndpoint}'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ${userInfo.token}',
+            },
+          );
+
+          if (response.statusCode == 200) { // API probably returns 200 for success
+            final jsonData = json.decode(response.body)['data'];
+            final userModel = UserModel(
+              id: jsonData['id'],
+              name: jsonData['name'],
+              email: jsonData['email'],
+              password: '',
+              token: '',
+              imageUrl: '',
+            );
+            return Right(true);
+          } else {
+            return Left(Failure('Failed to fetch user profile with status code: ${response.statusCode}, body: ${response.body}'));
+          }
+        } else {
+          return Left(Failure('User is not authenticated with status: ${userInfo.isLoggedIn}, token: ${userInfo.token}')); 
+        }
+      },
+    );
+  } catch (e) {
+    return Left(Failure('Failed to check authentication status: $e'));
   }
+}
 }

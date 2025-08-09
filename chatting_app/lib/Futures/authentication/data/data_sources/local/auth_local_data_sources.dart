@@ -9,8 +9,8 @@ import '../../../../../core/usecase/usecase.dart';
 
 
 abstract class AuthLocalDataSources {
-  Future<Either<Failure, bool>> saveUserInfo(CatchUserInfoParams params);
-  Future<Either<Failure, CatchUserInfoParams>> getUserInfo();
+  Future<Either<Failure, bool>> saveUserInfo(UserInfoParams params);
+  Future<Either<Failure, UserInfoParams>> getUserInfo();
 }
 
 
@@ -21,7 +21,7 @@ class AuthLocalDataSourcesImpl implements AuthLocalDataSources {
   AuthLocalDataSourcesImpl(this.sharedPreferences);
 
   @override
-  Future<Either<Failure, bool>> saveUserInfo(CatchUserInfoParams params) async {
+  Future<Either<Failure, bool>> saveUserInfo(UserInfoParams params) async {
     try {
       await sharedPreferences.setString('user_info', json.encode(params.toJson()));
       return Right(true);
@@ -31,11 +31,12 @@ class AuthLocalDataSourcesImpl implements AuthLocalDataSources {
   }
 
   @override
-  Future<Either<Failure, CatchUserInfoParams>> getUserInfo() async {
+  Future<Either<Failure, UserInfoParams>> getUserInfo() async {
     try {
       final userInfo = sharedPreferences.getString('user_info');
+      print('User Info: $userInfo');
       if (userInfo != null) {
-        return Right(CatchUserInfoParams.fromJson(userInfo));
+        return Right(UserInfoParams.fromJson(userInfo));
       } else {
         return Left(Failure('No user info found'));
       }

@@ -72,7 +72,8 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     final result = await checkAuthStatusUseCase();
     result.fold(
       (failure) => emit(AuthenticationErrorState(failure.message)),
-      (isAuthenticated) => emit(isAuthenticated ? AuthorizedState() : UnAuthorizedState()),
+      (isAuthenticated) => 
+        emit(isAuthenticated ? AuthorizedState() : UnAuthorizedState()),
     );
   }
 }

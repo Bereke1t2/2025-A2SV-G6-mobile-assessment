@@ -42,12 +42,14 @@ class SignupParams {
 
 
 
-class CatchUserInfoParams {
+class UserInfoParams {
   final String isLoggedIn;
   final String token;
   final String userId;
 
-  CatchUserInfoParams({required this.isLoggedIn, required this.token, required this.userId});
+  UserInfoParams({required this.isLoggedIn, required this.token, required this.userId});
+  get isValid => isLoggedIn.isNotEmpty && token.isNotEmpty && userId.isNotEmpty;
+  get tokenAndUserId => {'token': token, 'userId': userId};
 
   Map<String, dynamic> toJson() {
     return {
@@ -57,9 +59,9 @@ class CatchUserInfoParams {
     };
   }
 
-  factory CatchUserInfoParams.fromJson(String source) {
+  factory UserInfoParams.fromJson(String source) {
     final json = jsonDecode(source);
-    return CatchUserInfoParams(
+    return UserInfoParams(
       isLoggedIn: json['isLoggedIn'],
       token: json['token'],
       userId: json['userId'],

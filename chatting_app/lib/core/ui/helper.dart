@@ -65,3 +65,8 @@ class Validate {
     return true;
   }
 }
+
+
+ int getRandomNumber(int maxnum) {
+    return 1 + (DateTime.now().millisecondsSinceEpoch % maxnum);
+  }

@@ -1,53 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../bloc/authentication_bloc.dart';
 import '../bloc/authentication_state.dart';
 
 class TextButtonWidget extends StatelessWidget {
+  final AuthenticationState state;
   final String text;
   final VoidCallback onPressed;
-  final AuthenticationState? state;
+
   const TextButtonWidget({
     super.key,
     required this.text,
     required this.onPressed,
-    this.state,
+    required this.state,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 288,
-      height: 42,
-      decoration: BoxDecoration(
-        border: Border.all(color: Color(0xff3F51F3)),
-        borderRadius: BorderRadius.circular(8),
-        color: Color(0xff3F51F3), // Semi-transparent background
-      ),
-      child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-        builder: (context, state) {
-          if (state is LoginLoadingState || state is RegisterLoadingState) {
-            return Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            );
-          }
-          return Center(
-            child: GestureDetector(
-              onTap: onPressed,
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Poppins',
+    final bool isLoading =
+        state is LoginLoadingState || state is RegisterLoadingState;
+
+    return GestureDetector(
+      onTap: isLoading ? null : onPressed,
+      child: Container(
+        width: 288,
+        height: 42,
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xff3F51F3)),
+          borderRadius: BorderRadius.circular(8),
+          color: isLoading ? Colors.white : const Color(0xff3F51F3),
+        ),
+        child: Center(
+          child: isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Color(0xff3F51F3),
+                  ),
+                )
+              : Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
+        ),
       ),
     );
   }
