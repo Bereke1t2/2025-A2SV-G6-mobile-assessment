@@ -139,9 +139,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             );
             return Right(userModel);
           } else if (response.statusCode == 401) {
-            return Left(Failure('Unauthorized access'));
+            return Left(LoginFailure('Unauthorized access'));
           } else {
-            return Left(Failure('Failed to fetch user profile'));
+            return Left(LoginFailure('Failed to fetch user profile'));
           }
         } else {
           return Left(Failure('User is not authenticated'));

@@ -1,5 +1,4 @@
 import 'package:chatting_app/Futures/authentication/presentation/bloc/authentication_bloc.dart';
-import 'package:chatting_app/Futures/authentication/presentation/pages/error_page.dart';
 import 'package:chatting_app/Futures/authentication/presentation/pages/login_page.dart';
 import 'package:chatting_app/Futures/authentication/presentation/pages/signup_page.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'Futures/authentication/presentation/bloc/authentication_state.dart';
 import 'Futures/authentication/presentation/pages/home_page.dart';
 import 'Futures/authentication/presentation/pages/splash_screen.dart';
-import 'Futures/chat/presentation/pages/chat_home_page.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -25,10 +23,7 @@ void main() async {
           '/login': (context) => LoginPage(),
           '/signup': (context) => SignupPage(),
           '/splash': (context) => SplashScreen(),
-            '/error': (context) {
-            final args = ModalRoute.of(context)?.settings.arguments as String?;
-            return ErrorPage(errorMessage: args ?? 'An error occurred');
-            },
+  
           '/home': (context) => HomePage(),
         },
         home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
@@ -38,7 +33,7 @@ void main() async {
             } else if (state is LoginState) {
               return LoginPage();
             } else if (state is AuthenticationErrorState) {
-              return ErrorPage(errorMessage: state.message);
+              return LoginPage();
             } else if (state is RegisterState) {
               return SignupPage();
             } else if (state is AuthorizedState) {

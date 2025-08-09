@@ -9,3 +9,7 @@ class Failure {
 class TestFailure extends Failure {
  TestFailure(super.message);
 }
+
+class  LoginFailure extends Failure {
+  LoginFailure(super.message);
+}
