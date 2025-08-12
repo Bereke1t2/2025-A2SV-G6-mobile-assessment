@@ -72,7 +72,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           UserInfoParams(isLoggedIn: 'false', token: '', userId: ''),
         );
         return Right(true);
-
       } else {
         return Left(Failure('Logout failed'));
       }
@@ -83,60 +82,87 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<Either<Failure, UserModel>> register(SignupParams params) async {
-    try {
-      final response = await httpClient.post(
-        Uri.parse('${Constants.baseUrl}${Constants.registerEndpoint}'),
-        headers: <String, String>{
+  try {
+    final response = await httpClient.post(
+      Uri.parse('${Constants.baseUrl}${Constants.registerEndpoint}'),
+      headers: <String, String>{
           'Content-Type': 'application/json',
         },
-        body: json.encode(params.toJson()),
-      );
-      if (response.statusCode == 201) {
-        final jsonData = json.decode(response.body)['data'];
-        final userModel = UserModel(id: jsonData['id'], name: jsonData['name'], email: jsonData['email'] , token:'' , imageUrl: '' , password: '');
-        
-        return Right(userModel);
-      } else {
-        return Left(Failure('Registration failed'));
+      body: json.encode(params.toJson()),
+    );
+    final statusCode = response.statusCode;
+    final bodyString = response.body;
+    if (statusCode == 201) {
+      final decoded = json.decode(bodyString);
+      final jsonData = decoded['data'];
+      if (jsonData == null) {
+        return Left(Failure('Invalid response data'));
       }
-    } catch (e) {
-      return Left(Failure('Failed to register'));
+      final userModel = UserModel(
+        id: jsonData['id'] ?? '',
+        name: jsonData['name'] ?? '',
+        email: jsonData['email'] ?? '',
+        token: '',
+        imageUrl: '',
+        password: '',
+      );
+
+      return Right(userModel);
+    } else {
+      String errorMessage;
+      try {
+        errorMessage = jsonDecode(bodyString)['message'] ?? 'Unknown error';
+      } catch (_) {
+        errorMessage = 'Unknown error';
+      }
+      return Left(Failure('Registration failed ($statusCode): $errorMessage'));
     }
+  } catch (e) {
+    return Left(Failure('Failed to register: $e'));
   }
+}
+
   @override
-  Future<Either<Failure, UserModel>> checkAuthStatus() async {
+ Future<Either<Failure, UserModel>> checkAuthStatus() async {
   try {
-    final Either<Failure, UserInfoParams> userInfoEither = await authLocalDataSource.getUserInfo();
+    final Either<Failure, UserInfoParams> userInfoEither =
+        await authLocalDataSource.getUserInfo();
 
     return userInfoEither.fold(
       (failure) => Left(failure),
       (userInfo) async {
-        if (userInfo.isLoggedIn == 'true' && userInfo.token.isNotEmpty) {
+        final isLoggedIn = userInfo.isLoggedIn;
+        final token = userInfo.token;
+
+        if (isLoggedIn == 'true' && token.isNotEmpty) {
           final response = await httpClient.get(
             Uri.parse('${Constants.baseUrl}${Constants.userProfileEndpoint}'),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ${userInfo.token}',
+              'Authorization': 'Bearer $token',
             },
           );
 
-          if (response.statusCode == 200) { // API probably returns 200 for success
+          if (response.statusCode == 200) {
             final jsonData = json.decode(response.body)['data'];
+
             final userModel = UserModel(
-              id: jsonData['id'],
-              name: jsonData['name'],
-              email: jsonData['email'],
+              id: jsonData['id'] ?? '',
+              name: jsonData['name'] ?? '',
+              email: jsonData['email'] ?? '',
               password: '',
               token: '',
               imageUrl: '',
             );
+
             await authLocalDataSource.saveUserInfo(
               UserInfoParams(
                 isLoggedIn: 'true',
-                token: userInfo.token,
+                token: token,
                 userId: userModel.id,
               ),
             );
+
             return Right(userModel);
           } else if (response.statusCode == 401) {
             return Left(LoginFailure('Unauthorized access'));
@@ -149,7 +175,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       },
     );
   } catch (e) {
-    return Left(Failure('Failed to check authentication status'));
+    return Left(Failure('Failed to check authentication status: $e'));
   }
 }
 }

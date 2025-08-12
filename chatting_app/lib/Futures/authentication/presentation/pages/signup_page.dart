@@ -59,7 +59,6 @@ class _SignupPageState extends State<SignupPage> {
         ),
       ),
     );
-    _clear();
   }
 
   @override
@@ -146,6 +145,8 @@ class _SignupPageState extends State<SignupPage> {
                 BlocListener<AuthenticationBloc, AuthenticationState>(
                   listener: (context, state) {
                     if (state is RegisterErrorState) {
+                      _clear();
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           backgroundColor: Colors.red,
@@ -157,6 +158,8 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                       );
                     } else if (state is RegisterSuccessState) {
+                      _clear();
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           backgroundColor: Colors.green,

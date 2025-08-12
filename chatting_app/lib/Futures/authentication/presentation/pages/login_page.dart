@@ -47,8 +47,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-    emailController.clear();
-    passwordController.clear();
   }
 
   @override
@@ -82,6 +80,8 @@ class _LoginPageState extends State<LoginPage> {
                 BlocListener<AuthenticationBloc, AuthenticationState>(
                   listener: (context, state) {
                     if (state is LoginErrorState) {
+                      emailController.clear();
+                      passwordController.clear();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           backgroundColor: Colors.red,
@@ -93,6 +93,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     } else if (state is LoginSuccessState) {
+                      emailController.clear();
+                      passwordController.clear();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           backgroundColor: Colors.green,
@@ -103,7 +105,9 @@ class _LoginPageState extends State<LoginPage> {
                           content: Text("Login successful!"),
                         ),
                       );
-                      Navigator.pushReplacementNamed(context, '/home');
+                      BlocProvider.of<AuthenticationBloc>(
+                        context,
+                      ).add(CheckAuthStatusRequested());
                     }
                   },
                   child: BlocBuilder<AuthenticationBloc, AuthenticationState>(

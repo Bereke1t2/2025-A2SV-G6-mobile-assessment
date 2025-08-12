@@ -2,7 +2,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class BoldText extends StatelessWidget {
   const BoldText({super.key, required this.text , this.fontSize = 16});

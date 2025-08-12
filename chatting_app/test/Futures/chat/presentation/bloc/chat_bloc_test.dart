@@ -90,7 +90,7 @@ void main(){
       act: (bloc) => bloc.add(SendMessageEvent('chat1', 'Hello', 'msg1', 'user1', 'user2', DateTime.now())),
       expect: () => [
         ChatLoading(),
-        isA<MessageSent>().having(
+        isA<MessageSentState>().having(
           (state) => state.message.id, 'id', 'msg1'
         ).having(
           (state) => state.message.senderId, 'senderId', 'user1'
@@ -138,7 +138,7 @@ void main(){
       act: (bloc) => bloc.add(GetMessagesEvent('chat1')),
       expect: () => [
         ChatLoading(),
-        isA<MessagesLoaded>().having(
+        isA<MessagesLoadedState>().having(
           (state) => state.messages.length, 'length', 1
         ).having(
           (state) => state.messages.first.id, 'id', 'msg1'

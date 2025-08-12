@@ -1,108 +1,65 @@
 import 'package:flutter/material.dart';
-import 'person.dart';
 
 class MyStory extends StatelessWidget {
   final String imageUrl;
-  const MyStory({super.key, required this.imageUrl});
+  final String label;
+  final Color borderColor;
+
+  MyStory({
+    super.key,
+    required this.imageUrl,
+    this.label = "My status",
+    Color? borderColor,
+  }) : borderColor = borderColor ?? Color((0xFF000000 + (0x00FFFFFF * (imageUrl.hashCode % 1000) ~/ 1000)));
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: [
-        // Gradient border around the profile image
-        Container(
-          width: 70,
-          height: 70,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                Colors.purple,
-                Colors.orange,
-                Colors.yellow,
-                Colors.red,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(3.0), // Thickness of gradient border
-            child: Container(
+        Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(3), // Border thickness
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
+                border: Border.all(color: borderColor, width: 3),
               ),
-              child: ClipOval(
-                child: Person(
-                  displayProfileImage: imageUrl,
+              child: CircleAvatar(
+                backgroundColor: Color((0xFF9daa90200 + (0x00FFFFFF * (imageUrl.hashCode % 1000) ~/ 1000))),
+                radius: 30,
+                backgroundImage: AssetImage(imageUrl),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  border: Border.all(color: Colors.blue, width: 2),
+                ),
+                child: const Icon(
+                  Icons.add,
+                  size: 14,
+                  color: Colors.blue,
                 ),
               ),
             ),
-          ),
+          ],
         ),
-        // Small add button at bottom right
-        Positioned(
-          bottom: 4,
-          right: 4, // Changed from left to right
-          child: Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Colors.blue, Colors.lightBlueAccent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 14,
-            ),
-          ),
-        ),
-        // Break in the gradient border (simulate with a white arc)
-        Positioned(
-          top: 0,
-          left: 0,
-          child: SizedBox(
-            width: 70,
-            height: 70,
-            child: CustomPaint(
-              painter: _BreakCirclePainter(),
-            ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
           ),
         ),
       ],
     );
   }
-}
-
-// Custom painter to draw a break in the gradient circle
-class _BreakCirclePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    // Draw a small arc to simulate the break at bottom right
-    // Start angle: 5.5 radians (~315 degrees, bottom right)
-    // Sweep angle: 0.6 radians (~35 degrees)
-    canvas.drawArc(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      5.5, // start angle (bottom right)
-      0.6, // sweep angle (radians)
-      false,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

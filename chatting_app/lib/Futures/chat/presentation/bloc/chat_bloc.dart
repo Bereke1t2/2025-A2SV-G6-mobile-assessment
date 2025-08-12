@@ -48,7 +48,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final result = await sendMessageUseCase(MessageEntity(id: event.id, senderId: event.senderId, receiverId: event.receiverId, content: event.content, timestamp: event.timestamp));
     result.fold(
       (failure) => emit(ChatError(failure.message)),
-      (message) => emit(MessageSent(message)),
+      (message) => emit(MessageSentState(message)),
     );
   }
 
@@ -66,7 +66,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final result = await getMessagesUseCase(event.chatId);
     result.fold(
       (failure) => emit(ChatError(failure.message)),
-      (messages) => emit(MessagesLoaded(messages)),
+      (messages) => emit(MessagesLoadedState(event.chatId, messages)),
     );
   }
 }

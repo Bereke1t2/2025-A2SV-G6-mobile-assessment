@@ -1,62 +1,49 @@
 import 'package:flutter/material.dart';
-import 'person.dart';
 
-import 'dart:math';
 
-class Story extends StatelessWidget {
-  final String? imageUrl;
-  final List<Color>? storyColors;
+class StoryWidget extends StatelessWidget {
+  final String imageUrl;
+  final String label;
+  final Color borderColor;
 
-  const Story({
+  StoryWidget({
     super.key,
-    this.imageUrl,
-    this.storyColors,
-  });
-
-  List<Color> _getRandomColors() {
-    final List<List<Color>> colorOptions = [
-      [Colors.purple, Colors.orange, Colors.red],
-      [Colors.blue, Colors.green, Colors.yellow],
-      [Colors.teal, Colors.indigo, Colors.pink],
-      [Colors.deepOrange, Colors.amber, Colors.brown],
-      [Colors.cyan, Colors.lime, Colors.deepPurple],
-    ];
-    final random = Random();
-    return colorOptions[random.nextInt(colorOptions.length)];
-  }
+    required this.imageUrl,
+    required this.label,
+    Color? borderColor,
+  })  : borderColor = borderColor ?? HSLColor.fromAHSL(
+          1.0,
+          (imageUrl.hashCode % 360).toDouble(),
+          0.7,
+          0.55,
+        ).toColor();
 
   @override
   Widget build(BuildContext context) {
-    final colors = storyColors ?? _getRandomColors();
-    return Container(
-      width: 60,
-      height: 60,
-      padding: const EdgeInsets.all(3.0),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: colors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 6.0,
-            offset: const Offset(0, 3),
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(3), // Border thickness
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: borderColor, width: 3),
           ),
-        ],
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
+          child: CircleAvatar(
+            backgroundColor: Color((0xFF9daa90200 + (0x00FFFFFF * (imageUrl.hashCode % 1000) ~/ 1000))),
+            radius: 30,
+            backgroundImage: AssetImage(imageUrl),
+          ),
         ),
-        padding: const EdgeInsets.all(3.0),
-        child: ClipOval(
-          child: Person(displayProfileImage: imageUrl ?? ''),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
         ),
-      ),
+      ],
     );
   }
 }
